@@ -2,6 +2,7 @@
 
 一个用于将 iOS 项目中的 `Assets.xcassets` 资源自动生成 Swift 常量代码的命令行工具。
 
+
 ## 功能特性
 
 - 🎨 **颜色资源代码生成**：自动扫描所有 `.colorset` 目录，生成类型安全的 Swift 颜色常量
@@ -17,38 +18,74 @@
 - Go 1.16 或更高版本
 - macOS/iOS 开发环境
 
-### 构建
+### 方法一：使用安装脚本（推荐）
 
 ```bash
 # 克隆项目
 git clone https://github.com/yourusername/ios-assets-coder.git
 cd ios-assets-coder
 
-# 构建可执行文件
+# 运行安装脚本
+chmod +x install.sh
+./install.sh
+```
+
+安装脚本会自动：
+- 编译项目
+- 安装到 Go 的 bin 目录
+- 检查 PATH 环境变量配置
+
+### 方法二：手动构建
+
+```bash
+# 克隆项目
+git clone https://github.com/yourusername/ios-assets-coder.git
+cd ios-assets-coder
+
+# 使用构建脚本
+chmod +x build.sh
+./build.sh
+
+# 或者直接使用 go build
 go build -o ios-assets-coder main.go
 ```
 
+### 方法三：使用 go install
+
+```bash
+go install github.com/yourusername/ios-assets-coder@latest
+```
+
 ## 使用方法
+
+### 查看帮助信息
+
+```bash
+# 显示帮助信息
+ios-assets-coder --help
+ios-assets-coder -h
+
+# 显示版本信息
+ios-assets-coder --version
+ios-assets-coder -v
+```
 
 ### 基本用法
 
 ```bash
 # 使用默认路径
-go run main.go
-
-# 或者使用构建后的可执行文件
-./ios-assets-coder
+ios-assets-coder
 
 # 自定义路径
-go run main.go --input ./path/to/Assets.xcassets \
-               --color-output ./Generated/R_color.swift \
-               --image-output ./Generated/R_image.swift
+ios-assets-coder --input ./path/to/Assets.xcassets \
+                 --color-output ./Generated/R_color.swift \
+                 --image-output ./Generated/R_image.swift
 
 # 创建 R 结构体文件（可选）
-go run main.go --input ./path/to/Assets.xcassets \
-               --color-output ./Generated/R_color.swift \
-               --image-output ./Generated/R_image.swift \
-               --create-r ./Generated/R.swift
+ios-assets-coder --input ./path/to/Assets.xcassets \
+                 --color-output ./Generated/R_color.swift \
+                 --image-output ./Generated/R_image.swift \
+                 --create-r ./Generated/R.swift
 ```
 
 ### 命令行参数
@@ -213,6 +250,27 @@ fi
 - ✅ 支持深色模式的颜色定义
 - ✅ 支持 @1x, @2x, @3x 图片资源
 
+## 构建和发布
+
+### 构建多平台版本
+
+使用提供的构建脚本可以生成多个平台的可执行文件：
+
+```bash
+# 构建所有平台版本
+./build.sh
+
+# 指定版本号构建
+./build.sh v1.0.0
+```
+
+构建脚本会生成以下平台的可执行文件：
+- macOS (Intel 和 Apple Silicon)
+- Linux (amd64 和 arm64)
+- Windows (amd64 和 arm64)
+
+所有构建产物将保存在 `dist` 目录中。
+
 ## 注意事项
 
 1. **不要手动编辑生成的文件**：生成的文件会在每次运行时被覆盖
@@ -220,6 +278,21 @@ fi
 3. **文件权限**：确保输出目录有写入权限
 4. **资源命名**：建议使用小写字母和下划线命名资源，以获得最佳的代码生成效果
 5. **R 结构体**：如果使用 `extension R`，需要先使用 `--create-r` 参数创建 R 结构体文件，或在项目中手动定义 `public struct R {}`
+
+## 命令行参数
+
+```
+ios-assets-coder [OPTIONS]
+
+OPTIONS:
+  --input <路径>          Assets.xcassets 目录路径 (默认: ./Assets.xcassets)
+  --color-output <路径>   颜色常量输出文件路径 (默认: ./R_color.swift)
+  --image-output <路径>   图片常量输出文件路径 (默认: ./R_image.swift)
+  --create-r <路径>       创建 R 结构体文件路径 (可选，不传则不创建)
+  
+  -h, --help             显示帮助信息
+  -v, --version          显示版本信息
+```
 
 ## License
 

@@ -9,11 +9,64 @@ import (
 	"strings"
 )
 
+const (
+	// 版本信息
+	version = "1.0.0"
+	appName = "ios-assets-coder"
+)
+
 
 // Resource 结构体用于存储资源名称
 type Resource struct {
 	Name string // 资源名称
 	Path string // 资源路径
+}
+
+// printHelp 打印帮助信息
+func printHelp() {
+	fmt.Printf(`%s - iOS Assets.xcassets 资源代码生成器
+版本: %s
+
+用法:
+  %s [选项]
+
+描述:
+  自动扫描 iOS 项目中的 Assets.xcassets 目录，生成类型安全的 Swift 常量代码。
+  支持颜色资源 (.colorset) 和图片资源 (.imageset) 的代码生成。
+
+选项:
+  --input <路径>          Assets.xcassets 目录路径 (默认: ./Assets.xcassets)
+  --color-output <路径>   颜色常量输出文件路径 (默认: ./R_color.swift)
+  --image-output <路径>   图片常量输出文件路径 (默认: ./R_image.swift)
+  --create-r <路径>       创建 R 结构体文件路径 (可选，不传则不创建)
+  
+  -h, --help             显示此帮助信息
+  -v, --version          显示版本信息
+
+示例:
+  # 使用默认设置
+  %s
+
+  # 指定输入和输出路径
+  %s --input ./MyApp/Assets.xcassets \
+         --color-output ./Generated/Colors.swift \
+         --image-output ./Generated/Images.swift
+
+  # 创建 R 结构体（用于扩展）
+  %s --create-r ./Generated/R.swift \
+         --input ./MyApp/Assets.xcassets \
+         --color-output ./Generated/Colors.swift \
+         --image-output ./Generated/Images.swift
+
+注意:
+  - 生成的文件会覆盖已存在的同名文件
+  - 如果使用 extension R，需要先创建 R 结构体文件或在项目中定义
+  - 建议将生成的文件加入版本控制
+
+更多信息:
+  https://github.com/yourusername/ios-assets-coder
+
+`, appName, version, appName, appName, appName, appName)
 }
 
 func main() {
@@ -22,7 +75,31 @@ func main() {
 	colorOutput := flag.String("color-output", "./R_color.swift", "颜色常量输出文件路径")
 	imageOutput := flag.String("image-output", "./R_image.swift", "图片常量输出文件路径")
 	createR := flag.String("create-r", "", "创建R结构体的文件路径，如果不传则不创建R结构体")
+	
+	// 添加版本和帮助参数
+	showVersion := flag.Bool("version", false, "显示版本信息")
+	showVersionShort := flag.Bool("v", false, "显示版本信息")
+	showHelp := flag.Bool("help", false, "显示帮助信息")
+	showHelpShort := flag.Bool("h", false, "显示帮助信息")
+	
+	// 自定义帮助信息
+	flag.Usage = func() {
+		printHelp()
+	}
+	
 	flag.Parse()
+	
+	// 处理版本信息
+	if *showVersion || *showVersionShort {
+		fmt.Printf("%s version %s\n", appName, version)
+		os.Exit(0)
+	}
+	
+	// 处理帮助信息
+	if *showHelp || *showHelpShort {
+		printHelp()
+		os.Exit(0)
+	}
 
 	// 验证输入路径是否存在
 	if _, err := os.Stat(*inputPath); os.IsNotExist(err) {
